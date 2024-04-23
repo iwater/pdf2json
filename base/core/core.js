@@ -126,14 +126,14 @@ var Page = (function PageClosure() {
       var promise = new Promise();
       if (!this.resources) //empty page
         promise.resolve();
-      else    
+      else
         this.resourcesPromise.then(function resourceSuccess() {
-            var objectLoader = new ObjectLoader(this.resources.map,
-                                                keys,
-                                                this.xref);
-            objectLoader.load().then(function objectLoaderSuccess() {
+          var objectLoader = new ObjectLoader(this.resources.map,
+            keys,
+            this.xref);
+          objectLoader.load().then(function objectLoaderSuccess() {
             promise.resolve();
-            });
+          });
         }.bind(this));
       return promise;
     },
@@ -149,7 +149,7 @@ var Page = (function PageClosure() {
 
       var pdfManager = this.pdfManager;
       var contentStreamPromise = pdfManager.ensure(this, 'getContentStream',
-                                                   []);
+        []);
       var resourcesPromise = this.loadResources([
         'ExtGState',
         'ColorSpace',
@@ -162,27 +162,27 @@ var Page = (function PageClosure() {
       ]);
 
       var partialEvaluator = new PartialEvaluator(
-            pdfManager, this.xref, handler,
-            this.pageIndex, 'p' + this.pageIndex + '_',
-            this.idCounters, this.fontCache);
+        pdfManager, this.xref, handler,
+        this.pageIndex, 'p' + this.pageIndex + '_',
+        this.idCounters, this.fontCache);
 
       var dataPromises = Promise.all(
-          [contentStreamPromise, resourcesPromise], reject);
+        [contentStreamPromise, resourcesPromise], reject);
       dataPromises.then(function(data) {
         var contentStream = data[0];
 
 
         var opList = new OperatorList(handler, self.pageIndex);
         try {
-            handler.send('StartRenderPage', {
+          handler.send('StartRenderPage', {
             transparency: partialEvaluator.hasBlendModes(self.resources),
             pageIndex: self.pageIndex
-            });
-            partialEvaluator.getOperatorList(contentStream, self.resources, opList);
-            pageListPromise.resolve(opList);
+          });
+          partialEvaluator.getOperatorList(contentStream, self.resources, opList);
+          pageListPromise.resolve(opList);
         }
-        catch(e) {
-            pageListPromise.reject(e);
+        catch (e) {
+          pageListPromise.reject(e);
         }
       });
 
@@ -199,7 +199,7 @@ var Page = (function PageClosure() {
 
         var annotationsReadyPromise = Annotation.appendToOperatorList(
           annotations, pageOpList, pdfManager, partialEvaluator);
-        annotationsReadyPromise.then(function () {
+        annotationsReadyPromise.then(function() {
           pageOpList.flush(true);
           promise.resolve(pageOpList);
         }, reject);
@@ -209,8 +209,8 @@ var Page = (function PageClosure() {
     },
     extractTextContent: function Page_extractTextContent() {
       var handler = {
-        on: function nullHandlerOn() {},
-        send: function nullHandlerSend() {}
+        on: function nullHandlerOn() { },
+        send: function nullHandlerSend() { }
       };
 
       var self = this;
@@ -219,7 +219,7 @@ var Page = (function PageClosure() {
 
       var pdfManager = this.pdfManager;
       var contentStreamPromise = pdfManager.ensure(this, 'getContentStream',
-                                                   []);
+        []);
 
       var resourcesPromise = this.loadResources([
         'ExtGState',
@@ -228,16 +228,16 @@ var Page = (function PageClosure() {
       ]);
 
       var dataPromises = Promise.all([contentStreamPromise,
-                                      resourcesPromise]);
+        resourcesPromise]);
       dataPromises.then(function(data) {
         var contentStream = data[0];
         var partialEvaluator = new PartialEvaluator(
-              pdfManager, self.xref, handler,
-              self.pageIndex, 'p' + self.pageIndex + '_',
-              self.idCounters, self.fontCache);
+          pdfManager, self.xref, handler,
+          self.pageIndex, 'p' + self.pageIndex + '_',
+          self.idCounters, self.fontCache);
 
         var bidiTexts = partialEvaluator.getTextContent(contentStream,
-                                                        self.resources);
+          self.resources);
         textContentPromise.resolve(bidiTexts);
       });
 
@@ -246,10 +246,16 @@ var Page = (function PageClosure() {
 
     getAnnotationsData: function Page_getAnnotationsData() {
       var annotations = this.annotations;
+
       var annotationsData = [];
       for (var i = 0, n = annotations.length; i < n; ++i) {
         annotationsData.push(annotations[i].getData());
       }
+      // for (const annotation of annotationsData) {
+      //   if (annotation.subtype === 'Screen')
+      //     console.log(annotation);
+      // }
+
       return annotationsData;
     },
 
@@ -339,7 +345,7 @@ var PDFDocument = (function PDFDocumentClosure() {
           this.xfa = this.acroForm.get('XFA');
           var fields = this.acroForm.get('Fields');
           if ((!fields || !isArray(fields) || fields.length === 0) &&
-              !this.xfa) {
+            !this.xfa) {
             // no fields and no XFA -- not a form (?)
             this.acroForm = null;
           }
@@ -365,7 +371,7 @@ var PDFDocument = (function PDFDocumentClosure() {
           }
 
           info('The linearization data is not available ' +
-               'or unreadable PDF data is found');
+            'or unreadable PDF data is found');
           linearization = false;
         }
       }
@@ -513,4 +519,3 @@ var PDFDocument = (function PDFDocumentClosure() {
 
   return PDFDocument;
 })();
-
